@@ -1,0 +1,63 @@
+USE [NodeMSSQLDB]
+GO
+
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		PA392685
+-- Create date: 12/8/2020
+-- Description:	Start Up Script - Node MS-SQL Project
+-- =============================================
+CREATE PROCEDURE [dbo].[USP_STARTUPSCRIPT]
+AS
+BEGIN
+	SET NOCOUNT ON;
+	DECLARE @Result int = 0; -- 0 Success / 1 Failed
+	BEGIN TRY
+	BEGIN TRANSACTION
+	--Create Schema
+	Declare @SchemaName varchar(max) = 'nodesqldbo';	
+	IF NOT EXISTS (SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = @SchemaName) BEGIN EXEC sp_executesql N'CREATE SCHEMA nodesqldbo' END
+
+	--Create Employee Table	
+	IF  NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[nodesqldbo].[Employee]') AND type in (N'U'))
+		BEGIN
+			CREATE TABLE [nodesqldbo].[Employee](
+				[Id] [int] IDENTITY(1000,1) NOT NULL,
+				[Name] [varchar](50) NOT NULL,
+				[Role] [varchar](50) NOT NULL,
+				[Doj] [datetime] NOT NULL,
+				[Salary] [varchar](50) NOT NULL,
+				[EmailId] [varchar](50) NOT NULL,
+				[Phone] [varchar](15) NOT NULL,
+				PRIMARY KEY CLUSTERED 
+				([Id] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+				) ON [PRIMARY]			
+			
+		END
+
+	IF  NOT EXISTS (SELECT * FROM [nodesqldbo].[Employee] )
+		BEGIN
+			Insert into [nodesqldbo].[Employee] ([Name],[Role],[Doj],[Salary],[EmailId],[Phone]) VALUES ('Sachin Tendulkar', 'Admin', 1989-12-18, '400000', 'sachin10@mail.com', '9797977710');
+			Insert into [nodesqldbo].[Employee] ([Name],[Role],[Doj],[Salary],[EmailId],[Phone]) VALUES ('Sourav Ganguly', 'Admin', 1992-01-11, '400000', 'ganguly24@mail.com', '9797977724');
+			Insert into [nodesqldbo].[Employee] ([Name],[Role],[Doj],[Salary],[EmailId],[Phone]) VALUES ('M S Dhoni', 'Admin', 2004-12-23, '200000', 'dhoni07@mail.com', '9797977707');
+			Insert into [nodesqldbo].[Employee] ([Name],[Role],[Doj],[Salary],[EmailId],[Phone]) VALUES ('Virat Kohli', 'Admin', 2008-08-18, '200000', 'kohli18@mail.com', '9797977718');
+			Insert into [nodesqldbo].[Employee] ([Name],[Role],[Doj],[Salary],[EmailId],[Phone]) VALUES ('Suresh Raina', 'Admin', 2008-07-30, '200000', 'raina03@mail.com', '9797977703');
+		END
+	COMMIT TRANSACTION;
+	END TRY
+	BEGIN CATCH
+		Set @Result = 1;		
+		ROLLBACK TRANSACTION;
+	END CATCH
+		
+	Select @Result as Result;
+END
+
+GO
+
+
